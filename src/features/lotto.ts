@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { addLottoHistory } from "./history";
 
 /**
  * 로또 번호
@@ -76,15 +77,15 @@ export const getLottoPrize = (
  * 모든 로또에 대해 특정 등수의 당첨 개수를 반환합니다.
  */
 export const getLottoPrizeCountByPrize = ({
-  lotto,
+  lottos,
   winningLotto,
   prize,
 }: {
-  lotto: Lotto[];
+  lottos: Lotto[];
   winningLotto: WinningLotto;
   prize: LottoPrize;
 }): number => {
-  return lotto.filter((lotto) => {
+  return lottos.filter((lotto) => {
     return getLottoPrize(lotto, winningLotto) === prize;
   }).length;
 };
@@ -105,7 +106,7 @@ const defaultState: LottoState = {
   winningLotto: null,
 };
 
-export const useLottoStore = create<LottoState & LottoAction>((set) => ({
+export const useLottoStore = create<LottoState & LottoAction>((set, get) => ({
   ...defaultState,
   /**
    * 로또 구매
@@ -123,12 +124,21 @@ export const useLottoStore = create<LottoState & LottoAction>((set) => ({
    * 결과 확인
    */
   showResult: () => {
+    const newWinningLotto = {
+      numbers: generateLottoNumbers(),
+      bonusNumber: pickLottoNumber(),
+    };
+
     set(() => ({
-      winningLotto: {
-        numbers: generateLottoNumbers(),
-        bonusNumber: pickLottoNumber(),
-      },
+      winningLotto: newWinningLotto,
     }));
+
+    addLottoHistory({
+      id: crypto.randomUUID(),
+      lottos: get().purchasedLotto,
+      winningLotto: newWinningLotto,
+      createdAt: new Date().toISOString(),
+    });
   },
   /**
    * 처음부터 다시하기

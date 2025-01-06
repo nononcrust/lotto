@@ -11,7 +11,9 @@ import {
 import { useId } from "react";
 import { useInput } from "./hooks/use-input";
 import { z } from "zod";
-import { objectEntries } from "./lib/utils";
+import { formatDateString, objectEntries } from "./lib/utils";
+import { getLottoHistory, LottoHistoryEntry } from "./features/history";
+import { getMostFrequentWinningLottoNumber } from "./features/statistics";
 
 export const App = () => {
   const amountInputId = useId();
@@ -111,6 +113,8 @@ export const App = () => {
             처음부터 다시하기
           </Button>
         </div>
+        <LottoHistory />
+        <LottoStatistics />
       </main>
     </div>
   );
@@ -149,17 +153,17 @@ type ResultProps = {
   winningLotto: WinningLotto;
 };
 
+const labelByPrize: Record<LottoPrize, string> = {
+  1: "1등",
+  2: "2등",
+  3: "3등",
+  4: "4등",
+  5: "5등",
+  none: "꽝",
+};
+
 const Result = ({ winningLotto }: ResultProps) => {
   const { purchasedLotto } = useLottoStore();
-
-  const labelByPrize: Record<LottoPrize, string> = {
-    1: "1등",
-    2: "2등",
-    3: "3등",
-    4: "4등",
-    5: "5등",
-    none: "꽝",
-  };
 
   return (
     <div
@@ -180,7 +184,7 @@ const Result = ({ winningLotto }: ResultProps) => {
             <p key={prize} data-testid={`prize-${prize}`}>
               {label}:{" "}
               {getLottoPrizeCountByPrize({
-                lotto: purchasedLotto,
+                lottos: purchasedLotto,
                 prize: prize,
                 winningLotto: winningLotto,
               })}
@@ -189,6 +193,84 @@ const Result = ({ winningLotto }: ResultProps) => {
           ))}
         </div>
       </div>
+    </div>
+  );
+};
+
+const LottoHistory = () => {
+  const history = getLottoHistory();
+
+  return (
+    <div className="flex flex-col gap-3 mt-8">
+      <h2 className="text-xl font-semibold">이전 로또 내역</h2>
+      {history.length === 0 && (
+        <p className="text-gray-400">로또 내역이 없습니다.</p>
+      )}
+      {history.map((entry) => (
+        <LottoHistoryItem key={entry.id} history={entry} />
+      ))}
+    </div>
+  );
+};
+
+type LottoHistoryItemProps = {
+  history: LottoHistoryEntry;
+};
+
+const LottoHistoryItem = ({ history }: LottoHistoryItemProps) => {
+  return (
+    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+      <span className="font-medium text-sm">
+        {formatDateString(history.createdAt)}
+      </span>
+      <span className="text-sm font-medium">
+        구매한 로또 개수: {history.lottos.length}
+      </span>
+      <div>
+        <span>당첨번호: {history.winningLotto.numbers.join(", ")}</span>
+        <span className="ml-1 text-yellow-400">
+          + {history.winningLotto.bonusNumber}
+        </span>
+      </div>
+      <div className="flex flex-col gap-2">
+        {history.lottos.map((lotto, index) => (
+          <span key={index}>{lotto.join(", ")}</span>
+        ))}
+      </div>
+      <div className="mt-2 flex flex-col gap-1">
+        {objectEntries(labelByPrize).map(([prize, label]) => (
+          <p key={prize}>
+            {label}:{" "}
+            {getLottoPrizeCountByPrize({
+              lottos: history.lottos,
+              prize: prize,
+              winningLotto: history.winningLotto,
+            })}
+            개
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const LottoStatistics = () => {
+  const history = getLottoHistory();
+
+  return (
+    <div className="mt-8">
+      <h2 className="text-xl font-semibold">통계</h2>
+      {history.length < 3 && (
+        <p className="mt-2 text-gray-400">3번 이상의 결과가 필요합니다.</p>
+      )}
+      {history.length >= 3 && (
+        <p className="mt-2">
+          가장 많이 나온 번호:{" "}
+          {getMostFrequentWinningLottoNumber(
+            history.map((entry) => entry.winningLotto)
+          )}
+        </p>
+      )}
     </div>
   );
 };

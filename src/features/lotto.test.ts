@@ -72,7 +72,7 @@ describe("getLottoPrize", () => {
 });
 
 describe("getLottoPrizeCountByPrize", () => {
-  const lotto: Lotto[] = [
+  const lottos: Lotto[] = [
     [1, 2, 3, 4, 5, 6],
     [1, 2, 3, 4, 5, 7],
     [1, 2, 3, 4, 5, 8],
@@ -87,28 +87,28 @@ describe("getLottoPrizeCountByPrize", () => {
   };
 
   test("특정 등수의 당첨 개수를 반환합니다.", () => {
-    expect(getLottoPrizeCountByPrize({ lotto, winningLotto, prize: "1" })).toBe(
-      1
-    );
-
-    expect(getLottoPrizeCountByPrize({ lotto, winningLotto, prize: "2" })).toBe(
-      1
-    );
-
-    expect(getLottoPrizeCountByPrize({ lotto, winningLotto, prize: "3" })).toBe(
-      1
-    );
-
-    expect(getLottoPrizeCountByPrize({ lotto, winningLotto, prize: "4" })).toBe(
-      1
-    );
-
-    expect(getLottoPrizeCountByPrize({ lotto, winningLotto, prize: "5" })).toBe(
-      1
-    );
+    expect(
+      getLottoPrizeCountByPrize({ lottos, winningLotto, prize: "1" })
+    ).toBe(1);
 
     expect(
-      getLottoPrizeCountByPrize({ lotto, winningLotto, prize: "none" })
+      getLottoPrizeCountByPrize({ lottos, winningLotto, prize: "2" })
+    ).toBe(1);
+
+    expect(
+      getLottoPrizeCountByPrize({ lottos, winningLotto, prize: "3" })
+    ).toBe(1);
+
+    expect(
+      getLottoPrizeCountByPrize({ lottos, winningLotto, prize: "4" })
+    ).toBe(1);
+
+    expect(
+      getLottoPrizeCountByPrize({ lottos, winningLotto, prize: "5" })
+    ).toBe(1);
+
+    expect(
+      getLottoPrizeCountByPrize({ lottos, winningLotto, prize: "none" })
     ).toBe(1);
   });
 });
