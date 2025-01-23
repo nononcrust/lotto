@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: theme("colors.white");
+    --ring: theme("colors.gray.300");
+    --main: theme("colors.gray.800");
+    --sub: theme("colors.gray.600");
+    --border: theme("colors.gray.200");
+    --error: theme("colors.red.500");
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-main;
+  }
+
+  input,
+  button,
+  a {
+    @apply focus-visible:focus-ring;
+  }
+
+  .focus-ring {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
